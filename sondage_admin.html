@@ -645,6 +645,9 @@
     if (r.q4_remarques) {
       html += detailItem('Q4 — Remarques libres', r.q4_remarques, true);
     }
+    if (r.q5_site) {
+      html += detailItem('Q5 — Site souhaité', r.q5_site);
+    }
     return html;
   }
 
