@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sondage Personnel Soignant — CHL</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0d1f3c;
+    --navy-mid: #162d55;
+    --indigo: #2d3a8c;
+    --indigo-light: #4a5bbd;
+    --amber: #c07a1f;
+    --amber-light: #e09a38;
+    --cream: #f6f7fb;
+    --cream-dark: #e4e6f0;
+    --text: #1a1a2e;
+    --text-muted: #5a607a;
+    --white: #ffffff;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--navy);
+    position: relative;
+    overflow: hidden;
+  }
+  .header-geo {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  .header-geo::before {
+    content: '';
+    position: absolute;
+    top: -80px; left: -80px;
+    width: 320px; height: 320px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(45,58,140,0.5) 0%, transparent 70%);
+  }
+  .header-geo::after {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 200px; height: 100%;
+    background: linear-gradient(135deg, transparent 40%, rgba(45,58,140,0.25));
+  }
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--indigo), var(--amber-light), var(--indigo));
+  }
+  .header-inner {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 44px 32px 40px;
+    position: relative;
+    z-index: 1;
+  }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(192,122,31,0.2);
+    border: 1px solid rgba(224,154,56,0.4);
+    color: var(--amber-light);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 5px 12px;
+    border-radius: 20px;
+    margin-bottom: 18px;
+  }
+  .badge::before { content: '🏥'; font-size: 13px; }
+  header h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(26px, 5vw, 40px);
+    color: var(--white);
+    line-height: 1.15;
+    margin-bottom: 10px;
+  }
+  header p {
+    color: rgba(255,255,255,0.6);
+    font-size: 14.5px;
+    font-weight: 300;
+    max-width: 520px;
+    line-height: 1.6;
+  }
+
+  /* ── LAYOUT ── */
+  main {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 40px 32px 60px;
+  }
+
+  /* ── ANONYMAT ── */
+  .anon-card {
+    background: var(--white);
+    border-radius: 16px;
+    padding: 28px 32px;
+    margin-bottom: 32px;
+    border: 1.5px solid var(--cream-dark);
+    box-shadow: 0 2px 16px rgba(13,31,60,0.06);
+  }
+  .anon-card h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 18px;
+    color: var(--navy);
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .anon-card h2::before {
+    content: '';
+    display: inline-block;
+    width: 4px; height: 22px;
+    background: var(--amber-light);
+    border-radius: 4px;
+  }
+  .toggle-group {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 18px;
+  }
+  .toggle-btn {
+    flex: 1;
+    min-width: 140px;
+    padding: 14px 20px;
+    border: 2px solid var(--cream-dark);
+    border-radius: 12px;
+    background: var(--cream);
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-muted);
+    transition: all 0.2s ease;
+    text-align: center;
+  }
+  .toggle-btn:hover { border-color: var(--indigo); color: var(--indigo); background: rgba(45,58,140,0.05); }
+  .toggle-btn.active { border-color: var(--indigo); background: rgba(45,58,140,0.1); color: var(--indigo); font-weight: 600; }
+
+  .identity-fields {
+    display: none;
+    gap: 14px;
+    animation: slideDown 0.25s ease;
+  }
+  .identity-fields.visible { display: flex; flex-wrap: wrap; }
+  @keyframes slideDown {
+    from { opacity: 0; transform: translateY(-8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .field-group {
+    flex: 1;
+    min-width: 160px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .field-group label {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  .field-group input {
+    padding: 11px 14px;
+    border: 1.5px solid var(--cream-dark);
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--text);
+    background: var(--cream);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .field-group input:focus { border-color: var(--indigo); background: var(--white); }
+
+  /* ── QUESTION CARD ── */
+  .question-card {
+    background: var(--white);
+    border-radius: 16px;
+    padding: 32px;
+    margin-bottom: 22px;
+    border: 1.5px solid var(--cream-dark);
+    box-shadow: 0 2px 16px rgba(13,31,60,0.06);
+    position: relative;
+    transition: box-shadow 0.2s;
+  }
+  .question-card:hover { box-shadow: 0 6px 28px rgba(13,31,60,0.1); }
+  .q-number {
+    position: absolute;
+    top: 28px; right: 28px;
+    font-family: 'DM Serif Display', serif;
+    font-size: 42px;
+    color: var(--cream-dark);
+    line-height: 1;
+    user-select: none;
+  }
+  .question-card h3 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 19px;
+    color: var(--navy);
+    margin-bottom: 22px;
+    max-width: 85%;
+    line-height: 1.4;
+  }
+  .options-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    list-style: none;
+  }
+  .option-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .option-item label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    padding: 13px 18px;
+    border-radius: 10px;
+    border: 1.5px solid var(--cream-dark);
+    background: var(--cream);
+    width: 100%;
+    font-size: 14.5px;
+    font-weight: 400;
+    color: var(--text);
+    transition: all 0.18s ease;
+    user-select: none;
+  }
+  .option-item label:hover { border-color: var(--indigo); background: rgba(45,58,140,0.05); color: var(--indigo); }
+  .option-item input[type="radio"] { display: none; }
+  .option-item input[type="radio"]:checked + label {
+    border-color: var(--indigo);
+    background: rgba(45,58,140,0.1);
+    color: var(--indigo);
+    font-weight: 600;
+  }
+  .option-item input[type="radio"]:checked + label::before {
+    content: '✓';
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px; height: 20px;
+    background: var(--indigo);
+    color: white;
+    border-radius: 50%;
+    font-size: 11px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .option-item label::before {
+    content: '';
+    display: inline-flex;
+    width: 20px; height: 20px;
+    border: 2px solid var(--cream-dark);
+    border-radius: 50%;
+    flex-shrink: 0;
+    transition: all 0.18s;
+  }
+  .option-item label:hover::before { border-color: var(--indigo); }
+
+  /* ── CONDITIONAL ── */
+  .conditional {
+    display: none;
+    margin-top: 14px;
+    animation: slideDown 0.2s ease;
+  }
+  .conditional.visible { display: block; }
+  .conditional textarea {
+    width: 100%;
+    padding: 13px 16px;
+    border: 1.5px solid var(--cream-dark);
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--text);
+    background: var(--cream);
+    outline: none;
+    resize: vertical;
+    min-height: 90px;
+    transition: border-color 0.2s;
+    line-height: 1.6;
+  }
+  .conditional textarea:focus { border-color: var(--indigo); background: var(--white); }
+  .conditional-label {
+    font-size: 12.5px;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
+
+  /* ── FREE TEXT ── */
+  .free-textarea {
+    width: 100%;
+    padding: 14px 16px;
+    border: 1.5px solid var(--cream-dark);
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--text);
+    background: var(--cream);
+    outline: none;
+    resize: vertical;
+    min-height: 120px;
+    transition: border-color 0.2s;
+    line-height: 1.7;
+  }
+  .free-textarea:focus { border-color: var(--indigo); background: var(--white); }
+
+  /* ── SUBMIT ── */
+  .submit-area {
+    margin-top: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 14px;
+  }
+  .submit-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: linear-gradient(135deg, var(--indigo), var(--indigo-light));
+    color: white;
+    border: none;
+    padding: 16px 38px;
+    border-radius: 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    letter-spacing: 0.03em;
+    box-shadow: 0 4px 20px rgba(45,58,140,0.35);
+    transition: all 0.22s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(45,58,140,0.45); }
+  .submit-btn:active { transform: translateY(0); }
+  .submit-btn svg { width: 18px; height: 18px; }
+
+  /* ── SUCCESS ── */
+  .success-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(13,31,60,0.75);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+  }
+  .success-overlay.show { display: flex; }
+  .success-box {
+    background: var(--white);
+    border-radius: 20px;
+    padding: 48px 44px;
+    text-align: center;
+    max-width: 420px;
+    margin: 20px;
+    animation: popIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  @keyframes popIn {
+    from { opacity: 0; transform: scale(0.85); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+  .success-icon {
+    width: 72px; height: 72px;
+    background: linear-gradient(135deg, var(--indigo), var(--indigo-light));
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    margin-bottom: 22px;
+  }
+  .success-box h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 26px;
+    color: var(--navy);
+    margin-bottom: 12px;
+  }
+  .success-box p {
+    color: var(--text-muted);
+    font-size: 14.5px;
+    line-height: 1.6;
+    margin-bottom: 28px;
+  }
+  .close-btn {
+    background: var(--navy);
+    color: white;
+    border: none;
+    padding: 12px 32px;
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .close-btn:hover { background: var(--navy-mid); }
+
+  .req { color: var(--amber-light); margin-left: 3px; }
+
+  footer {
+    text-align: center;
+    padding: 28px;
+    color: var(--text-muted);
+    font-size: 12px;
+    border-top: 1px solid var(--cream-dark);
+  }
+
+  @media(max-width: 540px) {
+    main { padding: 24px 16px 40px; }
+    .header-inner { padding: 32px 20px 28px; }
+    .question-card, .anon-card { padding: 22px 18px; }
+    .q-number { font-size: 30px; top: 18px; right: 18px; }
+    .submit-btn { width: 100%; justify-content: center; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-geo"></div>
+  <div class="header-inner">
+    <span class="badge">Personnel Soignant — CHL</span>
+    <h1>Donnez-nous votre<br>avis professionnel</h1>
+    <p>Ce sondage interne est destiné au personnel soignant afin de recueillir vos préférences de pratique et vos retours sur les outils et plateformes utilisés.</p>
+  </div>
+</header>
+
+<main>
+
+  <!-- Anonymat -->
+  <div class="anon-card">
+    <h2>Mode de participation</h2>
+    <div class="toggle-group">
+      <button class="toggle-btn active" onclick="setAnon(true, this)">🙈 Anonyme</button>
+      <button class="toggle-btn" onclick="setAnon(false, this)">👤 Avec identité</button>
+    </div>
+    <div class="identity-fields" id="identityFields">
+      <div class="field-group">
+        <label for="prenom">Prénom</label>
+        <input type="text" id="prenom" placeholder="Votre prénom">
+      </div>
+      <div class="field-group">
+        <label for="nom">Nom</label>
+        <input type="text" id="nom" placeholder="Votre nom de famille">
+      </div>
+      <div class="field-group">
+        <label for="poste">Poste / Service</label>
+        <input type="text" id="poste" placeholder="Ex: Infirmier urgences">
+      </div>
+    </div>
+  </div>
+
+  <!-- Question 1 -->
+  <div class="question-card">
+    <span class="q-number">01</span>
+    <h3>Quelles types de pratiques souhaitez-vous réaliser ?<span class="req">*</span></h3>
+    <ul class="options-list">
+      <li class="option-item">
+        <input type="radio" name="q1" id="q1a" value="Professionnel">
+        <label for="q1a">Professionnel — soins approfondis et spécialisés</label>
+      </li>
+      <li class="option-item">
+        <input type="radio" name="q1" id="q1b" value="Rapide">
+        <label for="q1b">Rapide — prise en charge efficace et directe</label>
+      </li>
+    </ul>
+  </div>
+
+  <!-- Question 2 -->
+  <div class="question-card">
+    <span class="q-number">02</span>
+    <h3>La proposition d'un hôpital plus spécialisé et d'un autre plus rapide vous intéresse-t-elle ?<span class="req">*</span></h3>
+    <ul class="options-list">
+      <li class="option-item">
+        <input type="radio" name="q2" id="q2a" value="Oui" onchange="toggleConditional('cond2', false)">
+        <label for="q2a">Oui, cette proposition m'intéresse</label>
+      </li>
+      <li class="option-item">
+        <input type="radio" name="q2" id="q2b" value="Non" onchange="toggleConditional('cond2', true)">
+        <label for="q2b">Non, je préfère le système actuel</label>
+      </li>
+    </ul>
+    <div class="conditional" id="cond2">
+      <div class="conditional-label">Pouvez-vous expliquer pourquoi ?</div>
+      <textarea id="q2raison" placeholder="Votre explication…"></textarea>
+    </div>
+  </div>
+
+  <!-- Question 3 -->
+  <div class="question-card">
+    <span class="q-number">03</span>
+    <h3>Quel niveau de plateforme de travail et de formation souhaitez-vous ?<span class="req">*</span></h3>
+    <ul class="options-list">
+      <li class="option-item">
+        <input type="radio" name="q3" id="q3a" value="Garder les sites web actuels" onchange="toggleConditional('cond3', false)">
+        <label for="q3a">Garder les sites web tels quels et continuer</label>
+      </li>
+      <li class="option-item">
+        <input type="radio" name="q3" id="q3b" value="Passer sur Discord" onchange="toggleConditional('cond3', false)">
+        <label for="q3b">Tout supprimer et passer par Discord</label>
+      </li>
+      <li class="option-item">
+        <input type="radio" name="q3" id="q3c" value="Autre" onchange="toggleConditional('cond3', true)">
+        <label for="q3c">Autre — préciser ci-dessous</label>
+      </li>
+    </ul>
+    <div class="conditional" id="cond3">
+      <div class="conditional-label">Quelle plateforme proposeriez-vous ?</div>
+      <textarea id="q3autre" placeholder="Décrivez votre proposition…"></textarea>
+    </div>
+  </div>
+
+  <!-- Question 4 -->
+  <div class="question-card">
+    <span class="q-number">04</span>
+    <h3>Avez-vous d'autres remontées ou remarques à partager ?</h3>
+    <textarea class="free-textarea" id="q4" placeholder="Partagez librement vos retours, idées ou observations professionnelles…"></textarea>
+  </div>
+
+  <!-- Submit -->
+  <div class="submit-area">
+    <button class="submit-btn" onclick="submitForm()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+      </svg>
+      Envoyer mes réponses
+    </button>
+  </div>
+
+</main>
+
+<footer>
+  © 2025 CHL — Sondage Interne Personnel &nbsp;·&nbsp; Usage strictement interne
+</footer>
+
+<!-- Success Modal -->
+<div class="success-overlay" id="successOverlay">
+  <div class="success-box">
+    <div class="success-icon">✓</div>
+    <h2>Réponses enregistrées !</h2>
+    <p>Merci pour votre contribution. Vos retours professionnels sont précieux pour améliorer nos conditions de travail et nos pratiques.</p>
+    <button class="close-btn" onclick="closeSuccess()">Fermer</button>
+  </div>
+</div>
+
+<script>
+  let isAnonymous = true;
+
+  function setAnon(anon, btn) {
+    isAnonymous = anon;
+    document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const fields = document.getElementById('identityFields');
+    if (!anon) fields.classList.add('visible');
+    else {
+      fields.classList.remove('visible');
+      ['prenom','nom','poste'].forEach(id => { const el = document.getElementById(id); if(el) el.value=''; });
+    }
+  }
+
+  function toggleConditional(id, show) {
+    const el = document.getElementById(id);
+    if (show) el.classList.add('visible');
+    else el.classList.remove('visible');
+  }
+
+  function getRadioValue(name) {
+    const el = document.querySelector(`input[name="${name}"]:checked`);
+    return el ? el.value : null;
+  }
+
+  function submitForm() {
+    const q1 = getRadioValue('q1');
+    const q2 = getRadioValue('q2');
+    const q3 = getRadioValue('q3');
+
+    if (!q1 || !q2 || !q3) {
+      alert('Veuillez répondre aux questions obligatoires (marquées d\'un *).');
+      return;
+    }
+
+    const response = {
+      type: 'personnel',
+      date: new Date().toLocaleString('fr-FR'),
+      anonyme: isAnonymous,
+      identite: isAnonymous ? null : {
+        prenom: document.getElementById('prenom').value,
+        nom: document.getElementById('nom').value,
+        poste: document.getElementById('poste').value
+      },
+      q1_pratique: q1,
+      q2_hopital_double: q2,
+      q2_raison: q2 === 'Non' ? document.getElementById('q2raison').value : '',
+      q3_plateforme: q3,
+      q3_autre: q3 === 'Autre' ? document.getElementById('q3autre').value : '',
+      q4_remarques: document.getElementById('q4').value
+    };
+
+    const existing = JSON.parse(localStorage.getItem('sondages') || '[]');
+    existing.push(response);
+    localStorage.setItem('sondages', JSON.stringify(existing));
+
+    document.getElementById('successOverlay').classList.add('show');
+  }
+
+  function closeSuccess() {
+    document.getElementById('successOverlay').classList.remove('show');
+    document.querySelectorAll('input[type="radio"]').forEach(r => r.checked = false);
+    document.querySelectorAll('textarea').forEach(t => t.value = '');
+    document.querySelectorAll('.conditional').forEach(c => c.classList.remove('visible'));
+  }
+</script>
+</body>
+</html>
