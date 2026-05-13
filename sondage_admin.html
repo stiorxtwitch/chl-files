@@ -522,14 +522,39 @@
   </main>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+  // ──────────────────────────────────────────────────────────
+  //  Connexion Supabase
+  // ──────────────────────────────────────────────────────────
+  const SUPABASE_URL = 'https://gktawbaposndfxijkxdk.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdrdGF3YmFwb3NuZGZ4aWpreGRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQwNzUyNDUsImV4cCI6MjA3OTY1MTI0NX0.tY-CHuyb2zr9s6hlGkwmrdTvg920VVNghI9S45CjwKk';
+  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
   let allData = [];
   let currentFilter = 'all';
 
-  function loadData() {
-    allData = JSON.parse(localStorage.getItem('sondages') || '[]');
+  async function loadData() {
+    const { data, error } = await sb
+      .from('sondages')
+      .select('*')
+      .order('created_at', { ascending: false });
+    if (error) {
+      console.error(error);
+      alert('Erreur de chargement : ' + error.message);
+      return;
+    }
+    // Re-shape pour rester compatible avec le code de rendu existant
+    allData = (data || []).map(row => ({
+      id: row.id,
+      type: row.type,
+      anonyme: row.anonyme,
+      identite: row.identite,
+      date: row.date_locale || new Date(row.created_at).toLocaleString('fr-FR'),
+      ...(row.reponses || {})
+    }));
     updateStats();
-    renderList(allData);
+    applyFilter();
   }
 
   function updateStats() {
@@ -672,16 +697,16 @@
     header.classList.toggle('open', !isOpen);
   }
 
-  function confirmClear() {
-    if (confirm('⚠️ Êtes-vous sûr de vouloir effacer toutes les réponses ? Cette action est irréversible.')) {
-      localStorage.removeItem('sondages');
-      allData = [];
-      loadData();
-    }
+  async function confirmClear() {
+    if (!confirm('⚠️ Êtes-vous sûr de vouloir effacer TOUTES les réponses dans Supabase ? Cette action est irréversible.')) return;
+    const { error } = await sb.from('sondages').delete().gte('id', 0);
+    if (error) { alert('Erreur suppression : ' + error.message); return; }
+    allData = [];
+    loadData();
   }
 
   function exportJSON() {
-    const data = JSON.parse(localStorage.getItem('sondages') || '[]');
+    const data = allData;
     if (!data.length) { alert('Aucune donnée à exporter.'); return; }
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);

@@ -569,7 +569,15 @@
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+  // ──────────────────────────────────────────────────────────
+  //  Connexion Supabase
+  // ──────────────────────────────────────────────────────────
+  const SUPABASE_URL = 'https://gktawbaposndfxijkxdk.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdrdGF3YmFwb3NuZGZ4aWpreGRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQwNzUyNDUsImV4cCI6MjA3OTY1MTI0NX0.tY-CHuyb2zr9s6hlGkwmrdTvg920VVNghI9S45CjwKk';
+  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
   let isAnonymous = true;
 
   function setAnon(anon, btn) {
@@ -597,7 +605,7 @@
     return el ? el.value : null;
   }
 
-  function submitForm() {
+  async function submitForm() {
     const q1 = getRadioValue('q1');
     const q2 = getRadioValue('q2');
     const q3 = getRadioValue('q3');
@@ -607,14 +615,12 @@
       return;
     }
 
-    const response = {
-      type: 'citoyen',
-      date: new Date().toLocaleString('fr-FR'),
-      anonyme: isAnonymous,
-      identite: isAnonymous ? null : {
-        prenom: document.getElementById('prenom').value,
-        nom: document.getElementById('nom').value
-      },
+    const btn = document.querySelector('.submit-btn');
+    btn.disabled = true;
+    const oldHtml = btn.innerHTML;
+    btn.innerHTML = 'Envoi en cours…';
+
+    const reponses = {
       q1_soins: q1,
       q2_hopital_double: q2,
       q2_raison: q2 === 'Non' ? document.getElementById('q2raison').value : '',
@@ -623,10 +629,26 @@
       q4_remarques: document.getElementById('q4').value
     };
 
-    // Sauvegarde localStorage
-    const existing = JSON.parse(localStorage.getItem('sondages') || '[]');
-    existing.push(response);
-    localStorage.setItem('sondages', JSON.stringify(existing));
+    const payload = {
+      type: 'citoyen',
+      anonyme: isAnonymous,
+      identite: isAnonymous ? null : {
+        prenom: document.getElementById('prenom').value,
+        nom:    document.getElementById('nom').value
+      },
+      reponses,
+      date_locale: new Date().toLocaleString('fr-FR')
+    };
+
+    const { error } = await sb.from('sondages').insert(payload);
+    btn.disabled = false;
+    btn.innerHTML = oldHtml;
+
+    if (error) {
+      console.error(error);
+      alert('Erreur lors de l\'envoi : ' + error.message);
+      return;
+    }
 
     document.getElementById('successOverlay').classList.add('show');
   }
