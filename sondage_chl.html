@@ -543,6 +543,22 @@
     <textarea class="free-textarea" id="q4" placeholder="Partagez librement vos retours, idées ou observations professionnelles…"></textarea>
   </div>
 
+  <!-- Question 5 -->
+  <div class="question-card">
+    <span class="q-number">05</span>
+    <h3>Dans quel site souhaitez-vous travailler ? <small style="font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text-muted);font-weight:400;">(Les 2 sites seront sous la direction de Maeva)</small><span class="req">*</span></h3>
+    <ul class="options-list">
+      <li class="option-item">
+        <input type="radio" name="q5" id="q5a" value="Site Nord">
+        <label for="q5a">Site Nord &nbsp;<span style="font-size:13px;color:var(--text-muted);font-weight:400;">— Co-Patron : Michel &nbsp;·&nbsp; Référant RH : Marc</span></label>
+      </li>
+      <li class="option-item">
+        <input type="radio" name="q5" id="q5b" value="Site Sud">
+        <label for="q5b">Site Sud &nbsp;<span style="font-size:13px;color:var(--text-muted);font-weight:400;">— Co-Patron : Tonia &nbsp;·&nbsp; Patron : Maeva</span></label>
+      </li>
+    </ul>
+  </div>
+
   <!-- Submit -->
   <div class="submit-area">
     <button class="submit-btn" onclick="submitForm()">
@@ -600,7 +616,8 @@
     const q2 = getRadioValue('q2');
     const q3 = getRadioValue('q3');
 
-    if (!q1 || !q2 || !q3) {
+    const q5 = getRadioValue('q5');
+    if (!q1 || !q2 || !q3 || !q5) {
       alert('Veuillez répondre aux questions obligatoires (marquées d\'un *).');
       return;
     }
@@ -619,7 +636,8 @@
       q2_raison: q2 === 'Non' ? document.getElementById('q2raison').value : '',
       q3_plateforme: q3,
       q3_autre: q3 === 'Autre' ? document.getElementById('q3autre').value : '',
-      q4_remarques: document.getElementById('q4').value
+      q4_remarques: document.getElementById('q4').value,
+      q5_site: getRadioValue('q5') || ''
     };
 
     const existing = JSON.parse(localStorage.getItem('sondages') || '[]');
